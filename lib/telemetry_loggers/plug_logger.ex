@@ -93,20 +93,24 @@ defmodule TelemetryLoggers.PlugLogger do
     "#{method} #{path_or_route} -> #{status}"
   end
 
-  defp route_metadata(_, %{router: nil}), do: %{}
+  if Code.ensure_loaded?(Phoenix) do
+    defp route_metadata(_, %{router: nil}), do: %{}
 
-  defp route_metadata(conn, %{router: router}) do
-    case Phoenix.Router.route_info(router, conn.method, conn.request_path, "") do
-      :error ->
-        %{}
+    defp route_metadata(conn, %{router: router}) do
+      case Phoenix.Router.route_info(router, conn.method, conn.request_path, "") do
+        :error ->
+          %{}
 
-      %{route: route, plug: plug, plug_opts: plug_opts} ->
-        %{
-          route: route,
-          route_plug_opts: plug_opts,
-          route_plug: plug
-        }
+        %{route: route, plug: plug, plug_opts: plug_opts} ->
+          %{
+            route: route,
+            route_plug_opts: plug_opts,
+            route_plug: plug
+          }
+      end
     end
+  else
+    defp route_metadata(_, _), do: %{}
   end
 
   defp path_metadata(_conn, %{include_path: false}), do: %{}
