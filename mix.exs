@@ -46,7 +46,6 @@ defmodule MixProject do
   defp deps do
     [
       {:telemetry, "~> 1.0"},
-      {:logfmt, "~> 3.3"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:doctor, "~> 0.18.0", only: :dev, runtime: false},
