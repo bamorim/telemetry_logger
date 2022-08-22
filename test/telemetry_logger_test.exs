@@ -9,7 +9,6 @@ defmodule TelemetryLoggerTest do
     end)
   end
 
-  @tag :capture_log
   test "integration test", ctx do
     TelemetryLogger.attach_loggers([TestTelemetryLogger])
     pid = self()
