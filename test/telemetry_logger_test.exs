@@ -1,8 +1,6 @@
 defmodule TelemetryLoggerTest do
   use ExUnit.Case, async: false
 
-  import Mock
-
   setup do
     on_exit(fn ->
       for %{id: {TelemetryLogger, _, _} = id} <- :telemetry.list_handlers([]) do
@@ -12,27 +10,34 @@ defmodule TelemetryLoggerTest do
   end
 
   @tag :capture_log
-  test "integration test" do
+  test "integration test", ctx do
     TelemetryLogger.attach_loggers([TestTelemetryLogger])
     pid = self()
     event = [:telemetry_logger, :test, :event]
     measurements = %{count: 1}
     metadata = %{meta: :data}
 
-    with_mock TestLoggerBackend.ToMock,
-      log: fn :debug, msg, _ts, metadata ->
-        send(pid, {msg, Map.new(metadata)})
-      end do
-      :telemetry.execute(event, measurements, metadata)
+    :logger.add_primary_filter(ctx.test, {fn evt, _arg ->
+      if evt.meta.pid == pid do
+        send(pid, evt)
+        :stop
+      else
+        :ignore
+      end
+    end, :ok})
 
-      assert_receive {"Handled Event",
-                      %{
-                        measurements: ^measurements,
-                        metadata: ^metadata,
-                        event: ^event,
-                        config: %{opts: []}
-                      }}
-    end
+    on_exit(fn -> :logger.remove_primary_filter(ctx.test) end)
+
+    :telemetry.execute(event, measurements, metadata)
+
+    assert_receive %{
+      msg: {:string, "Handled Event"},
+      meta: %{
+        metadata: ^metadata,
+        measurements: ^measurements,
+        event: ^event
+      }
+    }
   end
 
   describe "attach_loggers/1" do

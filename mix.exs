@@ -51,7 +51,6 @@ defmodule MixProject do
       {:doctor, "~> 0.18.0", only: :dev, runtime: false},
       {:ex_check, "~> 0.14.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.28", only: :dev, runtime: false},
-      {:mock, "~> 0.3.7", only: [:dev, :test]},
       {:excoveralls, "~> 0.14", only: :test},
       {:phoenix, "~> 1.5", optional: true}
     ]
