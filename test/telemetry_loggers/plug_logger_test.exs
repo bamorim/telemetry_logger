@@ -22,8 +22,7 @@ defmodule TelemetryLoggers.PlugLoggerTest do
     end
 
     test "can hide path" do
-      assert {:ok, _, %{level: :info, include_path: false}} =
-               PlugLogger.init(include_path: false)
+      assert {:ok, _, %{level: :info, include_path: false}} = PlugLogger.init(include_path: false)
     end
 
     test "can override the prefix" do
@@ -40,6 +39,7 @@ defmodule TelemetryLoggers.PlugLoggerTest do
       conn =
         :get
         |> build_conn("/resource/12345")
+        |> Map.put(:remote_ip, {127, 0, 0, 1})
         |> put_status(200)
 
       assert {:log, :info, "GET /resource/12345 -> 200",
@@ -47,11 +47,23 @@ defmodule TelemetryLoggers.PlugLoggerTest do
                 duration_us: ^duration_us,
                 route: "/resource/:id",
                 path: "/resource/12345",
+                remote_ip: "127.0.0.1",
                 route_plug: TestController,
                 route_plug_opts: :action,
                 method: "GET",
                 status: 200
               }} = handle_phoenix_endpoint_stop(conn, duration: 20_000_000, router: TestRouter)
+    end
+
+    test "works with ipv6 address" do
+      conn =
+        :get
+        |> build_conn("/resource/12345")
+        |> Map.put(:remote_ip, {0, 0, 0, 0, 0, 0, 0, 1})
+        |> put_status(200)
+
+      assert {:log, :info, _, %{remote_ip: "::1"}} =
+               handle_phoenix_endpoint_stop(conn, duration: 20_000_000, router: TestRouter)
     end
 
     test "works if route does not exist" do

@@ -74,6 +74,7 @@ defmodule TelemetryLoggers.PlugLogger do
       metadata
       |> Map.merge(%{
         duration_us: convert_duration(duration),
+        remote_ip: format_ip(conn.remote_ip),
         status: conn.status,
         method: conn.method
       })
@@ -118,4 +119,16 @@ defmodule TelemetryLoggers.PlugLogger do
   defp path_metadata(conn, %{include_path: true}) do
     %{path: conn.request_path}
   end
+
+  defp format_ip(ip) when is_binary(ip), do: ip
+
+  defp format_ip(ip) when is_tuple(ip) do
+    if :inet.is_ip_address(ip) do
+      ip
+      |> :inet.ntoa()
+      |> List.to_string()
+    end
+  end
+
+  defp format_ip(_), do: nil
 end
