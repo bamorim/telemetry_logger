@@ -1,14 +1,18 @@
 defmodule MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/bamorim/telemetry_logger"
+
   def project do
     [
       app: :telemetry_logger,
-      version: "0.1.0",
+      version: "0.0.1",
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      package: package(),
+      description: "Generate structured logs from telemetry events with built-in support for popular libraries",
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
         plt_add_apps: [:mix, :credo]
@@ -21,8 +25,8 @@ defmodule MixProject do
         "coveralls.json": :test
       ],
       name: "TelemetryLogger",
-      source_url: "https://github.com/bamorim/telemetry_logger",
-      homepage_url: "https://github.com/bamorim/telemetry_logger",
+      source_url: @source_url,
+      homepage_url: @source_url,
       docs: [
         # The main page in the docs
         main: "TelemetryLogger",
@@ -53,6 +57,16 @@ defmodule MixProject do
       {:ex_doc, "~> 0.28", only: :dev, runtime: false},
       {:excoveralls, "~> 0.14", only: :test},
       {:phoenix, "~> 1.5", optional: true}
+    ]
+  end
+
+  defp package do
+    [
+      name: "telemetry_logger",
+      # These are the default files included in the package
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => @source_url}
     ]
   end
 end
