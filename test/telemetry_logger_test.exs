@@ -16,14 +16,17 @@ defmodule TelemetryLoggerTest do
     measurements = %{count: 1}
     metadata = %{meta: :data}
 
-    :logger.add_primary_filter(ctx.test, {fn evt, _arg ->
-      if evt.meta.pid == pid do
-        send(pid, evt)
-        :stop
-      else
-        :ignore
-      end
-    end, :ok})
+    :logger.add_primary_filter(
+      ctx.test,
+      {fn evt, _arg ->
+         if evt.meta.pid == pid do
+           send(pid, evt)
+           :stop
+         else
+           :ignore
+         end
+       end, :ok}
+    )
 
     on_exit(fn -> :logger.remove_primary_filter(ctx.test) end)
 
